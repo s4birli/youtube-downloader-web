@@ -20,4 +20,5 @@ export interface VideoInfoProps {
     setSelectedQuality: (quality: string) => void;
     downloading: boolean;
     handleDownload: () => void;
+    downloadProgress: number;
 } 

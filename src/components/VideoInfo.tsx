@@ -9,7 +9,8 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
     selectedQuality,
     setSelectedQuality,
     downloading,
-    handleDownload
+    handleDownload,
+    downloadProgress
 }) => {
     return (
         <div className="max-w-2xl mx-auto bg-[#1F1F1F] p-6 rounded-lg shadow-lg">
@@ -63,6 +64,18 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
                     </div>
                 </div>
             </div>
+
+            {downloading && (
+                <div className="mb-4">
+                    <div className="w-full bg-gray-700 rounded-full h-4 mb-2">
+                        <div
+                            className="bg-[#FF0000] h-4 rounded-full"
+                            style={{ width: `${downloadProgress}%` }}
+                        ></div>
+                    </div>
+                    <p className="text-center text-sm">{downloadProgress}% Downloaded</p>
+                </div>
+            )}
 
             <div className="flex justify-center">
                 <button

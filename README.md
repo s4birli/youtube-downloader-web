@@ -1,40 +1,70 @@
-# Minimal React Application
+# YouTube Video Downloader
 
-This is a minimal React application created with Create React App and TypeScript.
+A desktop application built with Electron, Python, and React that allows users to download YouTube videos in various formats and qualities.
 
-## Getting Started
+## Features
 
-To run the application locally, follow these steps:
+- Download YouTube videos in different quality options
+- Download audio-only versions of videos
+- Simple and intuitive user interface
+- Cross-platform (Windows, macOS, Linux)
 
-1. Make sure you have Node.js installed on your machine
-2. Clone this repository
-3. Navigate to the project directory
-4. Install dependencies:
+## Technology Stack
+
+- **Frontend**: React with TypeScript and Tailwind CSS
+- **Backend**: Python with Flask API
+- **Desktop Application**: Electron
+
+## Prerequisites
+
+- Node.js (v14+)
+- Python (v3.7+)
+- npm or yarn
+
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/youtube-downloader-web.git
+   cd youtube-downloader-web
+   ```
+
+2. Install Node.js dependencies:
    ```
    npm install
    ```
-5. Start the development server:
+
+3. Install Python dependencies:
+   ```
+   pip install -r python/requirements.txt
+   ```
+
+## Development
+
+1. Start the React development server:
+   ```
+   npm run react-start
+   ```
+
+2. In a separate terminal, start the Electron application:
    ```
    npm start
    ```
-6. Open [http://localhost:3000](http://localhost:3000) to view it in the browser
 
-## Available Scripts
+## Building for Production
 
-In the project directory, you can run:
+To build the application for production:
 
-### `npm start`
+```
+npm run build
+```
 
-Runs the app in the development mode.
+This will create distributable packages in the `dist` directory for your current platform.
 
-### `npm test`
+## Legal Disclaimer
 
-Launches the test runner in the interactive watch mode.
+This application is intended for educational purposes and personal use only. Downloading copyrighted material without permission may be against the law in your country. Users are responsible for complying with applicable laws and YouTube's terms of service.
 
-### `npm run build`
+## License
 
-Builds the app for production to the `build` folder.
-
-## Learn More
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This project is licensed under the MIT License - see the LICENSE file for details.

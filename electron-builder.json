@@ -1,0 +1,39 @@
+{
+    "appId": "com.yourdomain.youtube-downloader",
+    "productName": "YouTube Video Downloader",
+    "directories": {
+        "output": "dist"
+    },
+    "files": [
+        "dist/**/*",
+        "src/main.cjs",
+        "src/preload.cjs"
+    ],
+    "extraResources": [
+        {
+            "from": "python/",
+            "to": "python/",
+            "filter": [
+                "**/*"
+            ]
+        }
+    ],
+    "win": {
+        "target": [
+            "nsis"
+        ],
+        "icon": "public/favicon.ico"
+    },
+    "mac": {
+        "target": [
+            "dmg"
+        ],
+        "icon": "public/favicon.ico"
+    },
+    "linux": {
+        "target": [
+            "AppImage"
+        ],
+        "icon": "public/favicon.ico"
+    }
+}
