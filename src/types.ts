@@ -1,7 +1,12 @@
+export interface QualityOption {
+    id: string;
+    label: string;
+}
+
 export interface VideoInfoType {
     title: string;
     duration: string;
-    qualities: string[];
+    qualities: QualityOption[];
     thumbnail: string;
 }
 

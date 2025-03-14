@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from './components/Header';
 import VideoForm from './components/VideoForm';
@@ -6,7 +6,22 @@ import VideoInfo from './components/VideoInfo';
 import { VideoInfoType } from './types';
 
 // Backend API URL (Flask server)
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:5002';
+
+// Configure axios defaults
+axios.defaults.withCredentials = false; // Don't send cookies
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common['Accept'] = 'application/json';
+
+// Create an axios instance with CORS configuration
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: false
+});
 
 function App() {
   const [url, setUrl] = useState<string>('');
@@ -17,6 +32,28 @@ function App() {
   const [downloading, setDownloading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const [serverStatus, setServerStatus] = useState<string>('checking');
+
+  // Check if the server is running
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        // Try to make a simple request to the server
+        await api.post('/api/info', { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
+        setServerStatus('connected');
+      } catch (err: any) {
+        console.error('Server connection error:', err);
+        if (err.code === 'ERR_NETWORK') {
+          setServerStatus('disconnected');
+        } else {
+          // If we get a different error, the server is at least responding
+          setServerStatus('connected');
+        }
+      }
+    };
+
+    checkServer();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,23 +67,30 @@ function App() {
     setVideoInfo(null);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/info`, { url });
+      const response = await api.post('/api/info', { url });
       if (response.data.success) {
+        // Store the original format objects to use for download
+        const formatOptions = response.data.formats.map((format: any) => ({
+          id: format.id,
+          label: `${format.height}p (${format.size_mb} MB)`
+        }));
+
         setVideoInfo({
           title: response.data.title,
           duration: response.data.duration ? response.data.duration.toString() : "0:00",
-          qualities: response.data.formats.map((format: any) => format.height + 'p'),
+          qualities: formatOptions,
           thumbnail: response.data.thumbnail
         });
 
         // Set default quality to highest available
-        if (response.data.formats.length > 0) {
-          setSelectedQuality(response.data.formats[0].id);
+        if (formatOptions.length > 0) {
+          setSelectedQuality(formatOptions[0].id);
         }
       } else {
         setError(response.data.error);
       }
     } catch (err: any) {
+      console.error('API error:', err);
       setError('Could not get video information: ' + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
@@ -54,8 +98,13 @@ function App() {
   };
 
   const handleDownload = async () => {
-    if (!url.trim() || !selectedQuality) {
-      setError('URL and quality selection are required');
+    if (!url.trim()) {
+      setError('URL is required');
+      return;
+    }
+
+    if (downloadType === 'video' && !selectedQuality) {
+      setError('Please select a quality for video download');
       return;
     }
 
@@ -63,10 +112,11 @@ function App() {
     setDownloadProgress(0);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/download`, {
-        url: url,
-        format_id: selectedQuality
-      }, {
+      const requestData = downloadType === 'audio'
+        ? { url, isAudio: true }
+        : { url, format_id: selectedQuality, isAudio: false };
+
+      const response = await api.post('/api/download', requestData, {
         onDownloadProgress: (progressEvent) => {
           if (progressEvent.total) {
             // Update progress status
@@ -84,7 +134,7 @@ function App() {
 
       // Get filename from response header or use default name
       const contentDisposition = response.headers['content-disposition'];
-      let filename = 'video.mp4';
+      let filename = downloadType === 'video' ? 'video.mp4' : 'audio.mp3';
 
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
@@ -100,6 +150,7 @@ function App() {
 
       setDownloading(false);
     } catch (err: any) {
+      console.error('Download error:', err);
       setError('Download failed: ' + (err.response?.data?.error || err.message));
       setDownloading(false);
     }
@@ -110,6 +161,12 @@ function App() {
       <Header />
 
       <div className="container mx-auto px-4 py-8">
+        {serverStatus === 'disconnected' && (
+          <div className="max-w-2xl mx-auto bg-yellow-600 text-white p-3 rounded-md mb-4">
+            Cannot connect to the server. Please make sure the Python backend is running.
+          </div>
+        )}
+
         <VideoForm
           url={url}
           setUrl={setUrl}

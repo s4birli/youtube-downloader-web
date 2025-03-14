@@ -44,24 +44,27 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
                         </div>
                     </div>
 
-                    <div className="mb-4">
-                        <label htmlFor="quality" className="block text-sm font-medium mb-2">
-                            Quality
-                        </label>
-                        <select
-                            id="quality"
-                            value={selectedQuality}
-                            onChange={(e) => setSelectedQuality(e.target.value)}
-                            className="w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#FF0000]"
-                        >
-                            <option value="">Select Quality</option>
-                            {videoInfo.qualities.map((quality) => (
-                                <option key={quality} value={quality}>
-                                    {quality}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {downloadType === 'video' && (
+                        <div className="mb-4">
+                            <label htmlFor="quality" className="block text-sm font-medium mb-2">
+                                Quality
+                            </label>
+                            <select
+                                id="quality"
+                                value={selectedQuality}
+                                onChange={(e) => setSelectedQuality(e.target.value)}
+                                className="w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#FF0000]"
+                            >
+                                <option value="">Select Quality</option>
+                                {videoInfo.qualities.map((quality) => (
+                                    <option key={quality.id} value={quality.id}>
+                                        {quality.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-xs text-gray-400 mt-1">All videos are downloaded in H.264/AAC format for maximum compatibility</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -80,7 +83,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
             <div className="flex justify-center">
                 <button
                     onClick={handleDownload}
-                    disabled={!selectedQuality || downloading}
+                    disabled={(downloadType === 'video' && !selectedQuality) || downloading}
                     className="flex items-center justify-center gap-2 px-6 py-3 bg-[#FF0000] rounded-lg font-semibold hover:bg-[#CC0000] transition-colors disabled:opacity-50 disabled:bg-gray-700 w-full md:w-auto"
                 >
                     {downloading ? (
